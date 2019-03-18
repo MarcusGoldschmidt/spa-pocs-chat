@@ -4,37 +4,69 @@
         <h2>Chat</h2>
         <br>
         <div class="home__input-group">
-            <label class="form-label home__input-group--label" for="user">Name:</label>
-            <input class=" home__input-group--input" type="text" id="user" placeholder="Nome"
-                   v-model="usuario.user">
+            <form @submit.prevent="checkForm">
+                <label class="form-label home__input-group--label" for="user">Name:</label>
+                <p v-if="this.errors.name" class="home__input-group--error">{{ this.errors.name}}</p>
+                <input class=" home__input-group--input" type="text" id="user" name="user" placeholder="Nome"
+                       v-model="user.name">
 
-            <label class="form-label home__input-group--label" for="channel">Sala:</label>
-            <input class="home__input-group--input" type="text" id="channel" placeholder="Sala"
-                   v-model="usuario.room">
-            <br>
-            <br>
-            <br>
-            <a href="" class="home__input-group--button">Entrar na Sala</a>
+                <label class="form-label home__input-group--label" for="room">Sala:</label>
+                <p v-if="this.errors.room" class="home__input-group--error">{{ this.errors.room}}</p>
+                <input class="home__input-group--input" type="text" id="room" name="room" placeholder="Sala"
+                       v-model="user.room">
+                <button type="submit" class="home__input-group--button" style="margin-top: 5%">
+                    Entrar na Sala
+                </button>
+            </form>
         </div>
     </div>
 </template>
 
 <script>
+
+    import router from 'vue-router';
+
     export default {
         name: 'home',
         components: {},
         data() {
             return {
-                usuario: {
-                    user: '',
+                user: {
+                    name: '',
                     room: '',
+                },
+                errors: {
+                    name: null,
+                    room: null
                 }
             };
         },
+        methods: {
+            checkForm: function () {
+
+                if (this.user.name && this.user.room) {
+                    this.errors.room = null;
+                    this.errors.name = null;
+                    this.$router.push({name: `chat`, params: {room: this.user.room, name: this.user.name}});
+                }
+
+                if (!this.user.name) {
+                    this.errors.name = 'O nome é obrigatório.';
+                } else {
+                    this.errors.name = null;
+                }
+
+                if (!this.user.room) {
+                    this.errors.room = 'Você deve selecioanar uma sala.';
+                } else {
+                    this.errors.room = null;
+                }
+            }
+        }
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     .home {
         padding: 2%;
         text-align: center;
@@ -84,6 +116,17 @@
                     box-shadow: none;
                     transition: 500ms;
                 }
+
+                &:focus {
+                    color: white;
+                    text-decoration: none;
+                    outline: none;
+                }
+            }
+
+            &--error {
+                text-align: left;
+                color: #ff8383;
             }
         }
     }
