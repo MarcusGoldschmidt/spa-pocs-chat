@@ -1,17 +1,19 @@
 <template>
     <div class="chat">
         <div class="chat__board">
+            <p class="chat__board--user">{{ user.name}}</p>
             <div id="users" v-for="userOut in users.name">
-                <p>{{ user.name}}</p>
                 <p class="chat__board--user">{{ userOut }}</p>
             </div>
         </div>
         <div class="chat__mensage">
             <div class="chat__mensage--show">
+                <div>
 
+                </div>
             </div>
             <div class="chat__mensage--input">
-                <input>
+
             </div>
         </div>
     </div>
@@ -35,13 +37,31 @@
                 }
             };
         },
+        created() {
+            localStorage.poc_name = this.$route.params.name;
+        }
     }
 </script>
 
 <style lang="scss" scoped>
     .chat {
         padding: 2%;
-        text-align: center;
+        display: flex;
+
+        &__board{
+            height: 100%;
+            max-height: 100%;
+            width: 30%;
+            &--user{
+                font-size: 1.6rem;
+            }
+        }
+
+        &__mensage{
+            height: 100%;
+            max-height: 100%;
+            width: 70%;
+        }
 
         &__input-group {
             margin-left: 25%;

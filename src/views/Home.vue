@@ -14,7 +14,7 @@
                 <p v-if="this.errors.room" class="home__input-group--error">{{ this.errors.room}}</p>
                 <input class="home__input-group--input" type="text" id="room" name="room" placeholder="Sala"
                        v-model="user.room">
-                <button type="submit" class="home__input-group--button" style="margin-top: 5%">
+                <button type="submit" class="home__input-group--button">
                     Entrar na Sala
                 </button>
             </form>
@@ -29,8 +29,8 @@
         data() {
             return {
                 user: {
-                    name: '',
-                    room: '',
+                    name: localStorage.poc_name ,
+                    room: this.$route.params.room,
                 },
                 errors: {
                     name: null,
@@ -71,6 +71,10 @@
         &__input-group {
             margin-left: 25%;
             width: 50%;
+            @media (max-width: 768px){
+                margin-left: 10%;
+                width: 80%;
+            }
 
             &--label {
                 font-size: 1.6rem;
@@ -104,6 +108,10 @@
                 background-color: transparent;
                 border: 2px solid #00BCD4;
                 color: white;
+                margin-top: 5%;
+                @media (max-width: 768px){
+                    margin-top: 15%;
+                }
 
                 &:hover {
                     outline: none;
