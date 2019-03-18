@@ -1,10 +1,18 @@
 <template>
     <div class="chat">
-        <div class="chat">
-
+        <div class="chat__board">
+            <div id="users" v-for="userOut in users.name">
+                <p>{{ user.name}}</p>
+                <p class="chat__board--user">{{ userOut }}</p>
+            </div>
         </div>
-        <div>
+        <div class="chat__mensage">
+            <div class="chat__mensage--show">
 
+            </div>
+            <div class="chat__mensage--input">
+                <input>
+            </div>
         </div>
     </div>
 </template>
@@ -16,14 +24,14 @@
         data() {
             return {
                 user: {
-                    name: '',
-                    room: '',
+                    name: this.$route.params.name,
+                    room: this.$route.params.room,
                     color: '',
                     mensage: '',
                     isDigit: null,
                 },
-                users:{
-                  name: []
+                users: {
+                    name: []
                 }
             };
         },

@@ -17,7 +17,14 @@ export default new Router({
     {
       path: '/sala/:room',
       name: 'chat',
-      component: Chat
+      component: Chat,
+      beforeEnter: (to, from, next) => {
+          if(to.params.name){
+            next();
+          }else{
+            next({name: 'home'});
+          }
+      },
     },
     {
       path: '/about',
