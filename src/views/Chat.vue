@@ -1,20 +1,34 @@
 <template>
     <div class="chat">
         <div class="chat__board">
-            <p class="chat__board--user">{{ user.name}}</p>
-            <div id="users" v-for="userOut in users.name">
-                <p class="chat__board--user">{{ userOut }}</p>
+            <p class="chat__board--room">Sala: {{user.room}}</p>
+            <p class="chat__board--user">Usuário: {{user.name}}</p>
+            <hr>
+            <div id="users" v-for="(userOut, index) in users" v-bind:key="index">
+                <p class="chat__board--user">{{ userOut.name }}</p>
             </div>
         </div>
-        <div class="chat__mensage">
-            <div class="chat__mensage--show">
-                <div>
-
+        <div class="chat__message">
+            <div class="chat__message--show">
+                <div id="chat_message" v-for="(userOut, index) in messages" v-bind:key="index">
+                    <div class="chat__message--container">
+                        <p class="chat__board--user" v-bind:style="{ 'color': '#' + userOut.color }">{{ userOut.name
+                            }}</p>
+                        <p class="chat__board--user">{{ userOut.message }}</p>
+                    </div>
                 </div>
             </div>
-            <div class="chat__mensage--input">
-
-            </div>
+            <br>
+            <p v-if="this.errors.message" class="home__message--error">{{ this.errors.message }}</p>
+            <p v-if="isConnected" class="chat__message--connect">Conectado</p>
+            <p v-if="!isConnected" class="chat__message--disconnect">Sem conexão</p>
+            <form action="" class="chat__message--input" @submit.prevent="sendMessage">
+                <input class="chat__message--input--text" type="text" id="message" name="message"
+                       placeholder="Mensagem..."
+                       v-model="user.message"
+                       @change="sendIsDigitng">
+                <button type="submit" class="chat__message--input--button">Enviar</button>
+            </form>
         </div>
     </div>
 </template>
@@ -25,21 +39,87 @@
         components: {},
         data() {
             return {
+                isConnected: false,
                 user: {
+                    uid: null,
                     name: this.$route.params.name,
                     room: this.$route.params.room,
                     color: '',
-                    mensage: '',
-                    isDigit: null,
+                    message: '',
+                    isDigiting: false,
+                    mySelf: true,
                 },
-                users: {
-                    name: []
-                }
+                errors: {
+                    message: null,
+                },
+                messages: [],
+                users: [],
             };
         },
         created() {
-            localStorage.poc_name = this.$route.params.name;
-        }
+            // Quando usuario
+            sessionStorage.poc_name = this.$route.params.name;
+            // Enviando entrada da sala
+            this.$socket.emit('connected', this.user);
+        },
+        methods: {
+            sendMessage() {
+                this.$socket.emit('index', this.user);
+                this.user.message = '';
+            },
+            sendIsDigitng() {
+                this.$socket.emit('index', {
+                    room: this.user.room,
+                    name: this.user.name,
+                    color: this.user.color,
+                    mySelf: false,
+                    isDigiting: true,
+                });
+            }
+        },
+        mounted() {
+            this.sockets.subscribe(this.user.room, (data) => {
+
+                if (data.message == null) {
+                    this.users.push(data.name);
+                } else if (!data.isDigiting) {
+                    // Mensagem recebida
+                    this.messages.push(data);
+                } else {
+                    // Alguém está digitando
+                }
+
+            });
+
+            this.sockets.subscribe(this.user.room + "_all_users", (data) => {
+                this.users = data;
+            });
+
+            this.sockets.subscribe(this.user.room + "_user_in", (data) => {
+                // Adicionando novo usuario que entrou
+                // TODO: Fazer uma notificação de entrada
+                this.users.push(data);
+            });
+
+            this.sockets.subscribe(this.user.room + "_user_out", (data) => {
+                // Filtrando o usuario que saiu
+                // TODO: Fazer uma notificação de saida
+                let filter = this.users.filter((value, index, arr) => {
+                    return data.uid !== value.uid;
+                });
+
+                this.users = filter;
+            });
+        },
+        sockets: {
+            connect() {
+                // Fired when the socket connects.
+                this.isConnected = true;
+            },
+            disconnect() {
+                this.isConnected = false;
+            },
+        },
     }
 </script>
 
@@ -47,66 +127,116 @@
     .chat {
         padding: 2%;
         display: flex;
+        height: 100%;
+        flex-wrap: wrap;
 
-        &__board{
+        &__board {
             height: 100%;
             max-height: 100%;
             width: 30%;
-            &--user{
-                font-size: 1.6rem;
+
+            @media (max-width: 768px) {
+                width: 90%;
+                height: 10%;
+            }
+
+            &--user {
+                font-size: 1.5rem;
+                margin: 0;
+            }
+
+            &--room {
+                font-size: 1.8rem;
+                font-weight: bold;
             }
         }
 
-        &__mensage{
-            height: 100%;
-            max-height: 100%;
+        &__message {
             width: 70%;
-        }
-
-        &__input-group {
-            margin-left: 25%;
-            width: 50%;
-
-            &--label {
-                font-size: 1.6rem;
-                text-align: left;
+            padding-left: 5%;
+            padding-bottom: 2%;
+            @media (max-width: 768px) {
+                height: 90%;
+                width: 100%;
             }
 
-            &--input {
-                max-width: 100%;
-                width: 100%;
-                padding: .7rem 1rem;
-                font-size: 1.6rem;
-                height: 4rem;
+            &--container {
+                width: 60%;
+                padding-left: 2%;
                 border-radius: 10px;
-                background-color: transparent;
+                margin-top: 2%;
                 border: 2px solid #00BCD4;
-                color: white;
-                transition: 500ms;
+            }
 
-                &:focus {
-                    outline: none;
-                    border-color: #005b6e;
-                    box-shadow: none;
-                    transition: 500ms;
+            &--connect {
+                color: #00e000;
+            }
+
+            &--disconnect {
+                color: #ff251e;
+            }
+
+            &--show {
+                height: 88%;
+                overflow-x: hidden;
+                overflow-y: scroll;
+                @media (max-width: 768px) {
+                    height: 80%;
+                    padding-top: 5%;
                 }
             }
 
-            &--button {
-                font-size: 1.6rem;
-                padding: 1rem;
+            &--input {
                 border-radius: 10px;
-                background-color: transparent;
+                width: 100%;
                 border: 2px solid #00BCD4;
-                color: white;
+                display: flex;
+                flex-wrap: nowrap;
 
-                &:hover {
-                    outline: none;
+                &--text {
+                    width: 85%;
+                    @media (max-width: 768px) {
+                        width: 80%;
+                    }
+                    background-color: transparent;
                     color: white;
-                    text-decoration: none;
-                    border-color: #005b6e;
-                    box-shadow: none;
+                    padding: 0.8rem;
                     transition: 500ms;
+                    border-color: transparent;
+
+                    &:focus {
+                        color: white;
+                        text-decoration: none;
+                        outline: none;
+                    }
+                }
+
+                &--button {
+                    width: 15%;
+                    @media (max-width: 768px) {
+                        width: 20%;
+                    }
+                    font-size: 1.6rem;
+                    border-radius: 0 10px 10px 0;
+                    background-color: transparent;
+                    border-color: transparent;
+                    border-left: 2px solid #00BCD4;
+                    color: white;
+                    border-top: 0;
+                    border-bottom: 0;
+                    transition: 500ms;
+
+                    &:hover {
+                        outline: none;
+                        background-color: #042f50;
+                        transition: 500ms;
+                    }
+
+                    &:focus {
+                        color: white;
+                        text-decoration: none;
+                        outline: none;
+                    }
                 }
             }
         }

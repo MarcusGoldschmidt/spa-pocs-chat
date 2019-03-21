@@ -19,9 +19,9 @@ export default new Router({
             name: 'chat',
             component: Chat,
             beforeEnter: (to, from, next) => {
-                if (to.params.name || localStorage.poc_name) {
-                    if (localStorage.poc_name && !to.params.name) {
-                        to.params.name = localStorage.poc_name;
+                if (to.params.name || sessionStorage.poc_name) {
+                    if (sessionStorage.poc_name && !to.params.name) {
+                        to.params.name = sessionStorage.poc_name;
                     }
                     next();
                 } else {
