@@ -9,12 +9,14 @@
             </div>
         </div>
         <div class="chat__message">
-            <div class="chat__message--show">
+            <div id="general-chat" class="chat__message--show">
                 <div v-for="(userOut, index) in messages"
                      v-bind:key="index" v-bind:class="[userOut.mySelf ? 'chat__message--box-myself' : '']">
                     <div v-bind:key="index"
-                         v-bind:class="[userOut.mySelf ? 'chat__message--myself' : 'chat__message--other']">
-                        <p class="chat__board--user" v-bind:style="{ 'color': userOut.color }">
+                         v-bind:class="[userOut.mySelf ? 'chat__message--myself' : 'chat__message--other']"
+                         v-bind:style="{ 'border-color': userOut.color }"
+                    >
+                        <p v-if="!userOut.mySelf" class="chat__board--title">
                             {{ userOut.title }}
                         </p>
                         <p class="chat__board--user">{{ userOut.text }}</p>
@@ -73,7 +75,7 @@
         methods: {
             sendMessage() {
                 this.$socket.emit('index', this.user);
-                this.messages.push({
+                this.pushToMenssage({
                     title: this.user.name,
                     text: this.user.message,
                     color: this.user.color,
@@ -90,6 +92,16 @@
                     mySelf: false,
                     isDigiting: true,
                 });
+            },
+            async pushToMenssage(data) {
+                await this.messages.push(data);
+
+                this.scrollToBottom()
+            },
+            scrollToBottom() {
+                let chat = document.getElementById('general-chat');
+
+                chat.scrollTop = chat.scrollHeight;
             }
         },
         mounted() {
@@ -99,7 +111,7 @@
                     this.users.push(data.name);
                 } else if (!data.isDigiting) {
                     // Mensagem recebida
-                    this.messages.push({
+                    this.pushToMenssage({
                         title: data.name,
                         text: data.message,
                         color: data.color,
@@ -158,7 +170,13 @@
                 height: 10%;
             }
 
+            &--title {
+                font-size: 1.5rem;
+                margin: 0;
+            }
+
             &--user {
+                padding-bottom: 0.5rem;
                 font-size: 1.5rem;
                 margin: 0;
             }
@@ -187,7 +205,7 @@
                 padding-left: 2%;
                 border-radius: 10px;
                 margin-top: 2%;
-                border: 2px solid #00BCD4;
+                border: 1.5px solid #00BCD4;
             }
 
             &--other {
@@ -195,7 +213,7 @@
                 padding-left: 2%;
                 border-radius: 10px;
                 margin-top: 2%;
-                border: 2px solid #00BCD4;
+                border: 1.5px solid #00BCD4;
             }
 
             &--connect {
