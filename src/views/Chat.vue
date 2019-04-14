@@ -10,11 +10,14 @@
         </div>
         <div class="chat__message">
             <div class="chat__message--show">
-                <div id="chat_message" v-for="(userOut, index) in messages" v-bind:key="index">
-                    <div class="chat__message--container">
-                        <p class="chat__board--user" v-bind:style="{ 'color': '#' + userOut.color }">{{ userOut.name
-                            }}</p>
-                        <p class="chat__board--user">{{ userOut.message }}</p>
+                <div v-for="(userOut, index) in messages"
+                     v-bind:key="index" v-bind:class="[userOut.mySelf ? 'chat__message--box-myself' : '']">
+                    <div v-bind:key="index"
+                         v-bind:class="[userOut.mySelf ? 'chat__message--myself' : 'chat__message--other']">
+                        <p class="chat__board--user" v-bind:style="{ 'color': '#' + userOut.color }">
+                            {{ userOut.title }}
+                        </p>
+                        <p class="chat__board--user">{{ userOut.text }}</p>
                     </div>
                 </div>
             </div>
@@ -39,7 +42,7 @@
         components: {},
         data() {
             return {
-                isConnected: false,
+                isConnected: null,
                 user: {
                     uid: null,
                     name: this.$route.params.name,
@@ -65,6 +68,13 @@
         methods: {
             sendMessage() {
                 this.$socket.emit('index', this.user);
+                this.messages.push({
+                    title: this.user.name,
+                    text: this.user.message,
+                    color: this.user.color,
+                    mySelf: true,
+                });
+
                 this.user.message = '';
             },
             sendIsDigitng() {
@@ -84,7 +94,12 @@
                     this.users.push(data.name);
                 } else if (!data.isDigiting) {
                     // Mensagem recebida
-                    this.messages.push(data);
+                    this.messages.push({
+                        title: data.name,
+                        text: data.message,
+                        color: data.color,
+                        mySelf: false,
+                    });
                 } else {
                     // Alguém está digitando
                 }
@@ -104,11 +119,9 @@
             this.sockets.subscribe(this.user.room + "_user_out", (data) => {
                 // Filtrando o usuario que saiu
                 // TODO: Fazer uma notificação de saida
-                let filter = this.users.filter((value, index, arr) => {
+                this.users = this.users.filter((value, index, arr) => {
                     return data.uid !== value.uid;
                 });
-
-                this.users = filter;
             });
         },
         sockets: {
@@ -160,7 +173,19 @@
                 width: 100%;
             }
 
-            &--container {
+            &--box-myself {
+                margin-left: 40%;
+            }
+
+            &--myself {
+                width: 90%;
+                padding-left: 2%;
+                border-radius: 10px;
+                margin-top: 2%;
+                border: 2px solid #00BCD4;
+            }
+
+            &--other {
                 width: 60%;
                 padding-left: 2%;
                 border-radius: 10px;
