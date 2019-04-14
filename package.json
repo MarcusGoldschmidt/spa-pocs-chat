@@ -10,6 +10,7 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "randomcolor": "^0.5.4",
     "register-service-worker": "^1.6.2",
     "spectre.scss": "0.0.3",
     "vue": "^2.6.6",

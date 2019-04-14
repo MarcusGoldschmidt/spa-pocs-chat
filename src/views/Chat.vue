@@ -14,7 +14,7 @@
                      v-bind:key="index" v-bind:class="[userOut.mySelf ? 'chat__message--box-myself' : '']">
                     <div v-bind:key="index"
                          v-bind:class="[userOut.mySelf ? 'chat__message--myself' : 'chat__message--other']">
-                        <p class="chat__board--user" v-bind:style="{ 'color': '#' + userOut.color }">
+                        <p class="chat__board--user" v-bind:style="{ 'color': userOut.color }">
                             {{ userOut.title }}
                         </p>
                         <p class="chat__board--user">{{ userOut.text }}</p>
@@ -37,6 +37,9 @@
 </template>
 
 <script>
+
+    var randomColor = require('randomcolor');
+
     export default {
         name: 'home',
         components: {},
@@ -47,7 +50,9 @@
                     uid: null,
                     name: this.$route.params.name,
                     room: this.$route.params.room,
-                    color: '',
+                    color: randomColor({
+                        luminosity: 'light',
+                    }),
                     message: '',
                     isDigiting: false,
                     mySelf: true,
