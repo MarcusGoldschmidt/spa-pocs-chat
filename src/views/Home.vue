@@ -29,22 +29,32 @@
         data() {
             return {
                 user: {
-                    name: localStorage.poc_name ,
+                    name: localStorage.poc_name,
                     room: this.$route.params.room,
                 },
                 errors: {
                     name: null,
-                    room: null
-                }
+                    room: null,
+                },
+                isConnected: false,
             };
         },
         methods: {
             checkForm: function () {
 
+                // Validado
                 if (this.user.name && this.user.room) {
                     this.errors.room = null;
                     this.errors.name = null;
-                    this.$router.push({name: `chat`, params: {room: this.user.room, name: this.user.name}});
+                    // Manda pra sala
+                    this.$router.push({
+                        name: `chat`,
+                        params: {
+                            room: this.user.room,
+                            name: this.user.name,
+                            isConnected: this.isConnected
+                        }
+                    });
                 }
 
                 if (!this.user.name) {
@@ -59,7 +69,18 @@
                     this.errors.room = null;
                 }
             }
-        }
+        },
+        sockets: {
+            connect() {
+                // Fired when the socket connects.
+                console.log('Conectado');
+                this.isConnected = true;
+            },
+            disconnect() {
+                console.log('SAIU');
+                this.isConnected = false;
+            },
+        },
     }
 </script>
 
@@ -71,7 +92,7 @@
         &__input-group {
             margin-left: 25%;
             width: 50%;
-            @media (max-width: 768px){
+            @media (max-width: 768px) {
                 margin-left: 10%;
                 width: 80%;
             }
@@ -109,7 +130,7 @@
                 border: 2px solid #00BCD4;
                 color: white;
                 margin-top: 5%;
-                @media (max-width: 768px){
+                @media (max-width: 768px) {
                     margin-top: 15%;
                 }
 

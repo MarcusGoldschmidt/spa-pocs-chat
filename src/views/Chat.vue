@@ -43,11 +43,11 @@
     var randomColor = require('randomcolor');
 
     export default {
-        name: 'home',
+        name: 'chat',
         components: {},
         data() {
             return {
-                isConnected: null,
+                isConnected: this.$route.params.isConnected,
                 user: {
                     uid: null,
                     name: this.$route.params.name,
@@ -96,7 +96,7 @@
             async pushToMenssage(data) {
                 await this.messages.push(data);
 
-                this.scrollToBottom()
+                this.scrollToBottom();
             },
             scrollToBottom() {
                 let chat = document.getElementById('general-chat');
@@ -144,9 +144,11 @@
         sockets: {
             connect() {
                 // Fired when the socket connects.
+                console.log('Conectado');
                 this.isConnected = true;
             },
             disconnect() {
+                console.log('SAIU');
                 this.isConnected = false;
             },
         },
