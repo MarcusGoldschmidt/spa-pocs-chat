@@ -10,7 +10,7 @@ import '../node_modules/spectre.scss/spectre.scss'
 
 Vue.use(new VueSocketIO({
     debug: true,
-    connection: 'http://192.168.7.122:4000',
+    connection: 'http://localhost:4000',
     vuex: {
         store,
         actionPrefix: 'SOCKET_',
